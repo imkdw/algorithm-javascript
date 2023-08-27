@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model userMaster {
+  userId   String    @id @map("user_id")
+  regId    String    @map("reg_id")
+  regDate  DateTime? @default(now()) @map("reg_date")
+  editId   String    @map("edit_id")
+  editDate DateTime? @default(now()) @map("edit_date")
+  liveDate DateTime? @map("live_date")
+
+  userDevice     userDevice[]
+  articleMaster  articleMaster[]
+  articleComment articleComment[]
+  alarm          alarmMaster[]
+
+  @@map("T_UserMaster")
+}
+
+model userDevice {
+  id          Int       @id @default(autoincrement())
+  userId      String    @map("user_id")
+  deviceToken String    @map("device_token")
+  notiCheck   Boolean   @default(false) @map("noti_check")
+  regId       String    @map("reg_id")
+  regDate     DateTime? @default(now()) @map("reg_date")
+  editId      String    @map("edit_id")
+  editDate    DateTime? @default(now()) @map("edit_date")
+  liveDate    DateTime? @map("live_date")
+
+  user userMaster @relation(fields: [userId], references: [userId])
+
+  @@map("T_UserDevice")
+}
+
+model articleMaster {
+  id             Int              @id @default(autoincrement())
+  title          String
+  content        String
+  regId          String           @map("reg_id")
+  regDate        DateTime?        @default(now()) @map("reg_date")
+  editId         String           @map("edit_id")
+  editDate       DateTime?        @default(now()) @map("edit_date")
+  liveDate       DateTime?        @map("live_date")
+  articleComment articleComment[]
+
+  user userMaster @relation(fields: [regId], references: [userId])
+
+  @@map("T_ArticleMaster")
+}
+
+model articleComment {
+  id        Int       @id @default(autoincrement())
+  articleId Int       @map("board_id")
+  content   String
+  regId     String    @map("reg_id")
+  regDate   DateTime? @default(now()) @map("reg_date")
+  editId    String    @map("edit_id")
+  editDate  DateTime? @default(now()) @map("edit_date")
+  liveDate  DateTime? @map("live_date")
+
+  board articleMaster @relation(fields: [articleId], references: [id])
+  user  userMaster    @relation(fields: [regId], references: [userId])
+
+  @@map("T_ArticleComment")
+}
+
+model alarmMaster {
+  id             Int       @id @default(autoincrement())
+  toUserId       String    @map("to_user_id")
+  notiCode       String    @map("noti_code")
+  channelWeb     Boolean   @default(false) @map("channel_web")
+  channelAndroid Boolean   @default(false) @map("channel_android")
+  channelIos     Boolean   @default(false) @map("channel_ios")
+  channelEmail   Boolean   @default(false) @map("channel_email")
+  doneWeb        DateTime? @map("done_web")
+  doneAndroid    DateTime? @map("done_android")
+  doneIos        DateTime? @map("done_ios")
+  doneEmail      DateTime? @map("done_email")
+  regId          String    @map("reg_id")
+  regDate        DateTime? @default(now()) @map("reg_date")
+  editId         String    @map("edit_id")
+  editDate       DateTime? @default(now()) @map("edit_date")
+  liveDate       DateTime? @map("live_date")
+
+  user userMaster @relation(fields: [toUserId], references: [userId])
+
+  @@map("T_AlarmMaster")
+}
+
+model alarmTemplate {
+  id         Int       @id @default(autoincrement())
+  alarmId    Int       @map("alarm_id")
+  notiCode   String    @map("noti_code")
+  deviceType String    @map("device_type") /// A, I, W, E
+  image      String
+  title      String
+  body       String
+  regId      String    @map("reg_id")
+  regDate    DateTime? @default(now()) @map("reg_date")
+  editId     String    @map("edit_id")
+  editDate   DateTime? @default(now()) @map("edit_date")
+  liveDate   DateTime? @map("live_date")
+
+  @@map("T_AlarmTemplate")
+}
